@@ -154,7 +154,7 @@ export default function Home() {
                 {introFinished && (
                   <button 
                     onClick={() => { playSFX('click'); setScreen('selection'); }}
-                    className="mt-12 block w-full py-4 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all uppercase tracking-[0.3em] font-bold animate-in fade-in slide-in-from-bottom-4 duration-1000"
+                    className="mt-12 block w-full py-5 border-2 border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all uppercase tracking-[0.4em] font-bold animate-in fade-in slide-in-from-bottom-4 duration-1000 shadow-[0_0_15px_rgba(212,175,55,0.2)]"
                   >
                     View Active Case Files
                   </button>
@@ -244,17 +244,17 @@ export default function Home() {
                  <Search size={14} /> Evidence Locker
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime_scene.png", title: "Evidence A: Nexus Server Room" })} className="polaroid-frame -rotate-2">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime_scene.png" alt="Evidence" />
+                <div onClick={() => setSelectedEvidence({ src: "/images/crime-scene.jpg", title: "Evidence A: Nexus Server Room" })} className="polaroid-frame -rotate-2 border-[#d4af37]/20">
+                   <img src="/images/crime-scene.jpg" alt="Crime Scene" />
                    <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">#A109 - CRIME SCENE</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png", title: "Evidence B: Unidentified Tx Logs" })} className="polaroid-frame rotate-1">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png" alt="Evidence" />
-                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">#B212 - WALLET LOGS</div>
+                <div onClick={() => setSelectedEvidence({ src: "/images/police-report.jpg", title: "Evidence B: Agency Intelligence Report" })} className="polaroid-frame rotate-1 border-[#d4af37]/20">
+                   <img src="/images/police-report.jpg" alt="Police Report" />
+                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">#B212 - AGENCY DOCS</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/police_report.png", title: "Evidence C: Agency Report" })} className="polaroid-frame -rotate-1">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/police_report.png" alt="Evidence" />
-                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">#C441 - POLICE DOCS</div>
+                <div onClick={() => setSelectedEvidence({ src: "/images/wallet_logs.png", title: "Evidence C: Wallet Transaction Log" })} className="polaroid-frame -rotate-1">
+                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png" alt="Wallet Logs" />
+                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">#C441 - WALLET LOGS</div>
                 </div>
               </div>
             </section>
@@ -328,7 +328,7 @@ export default function Home() {
                     <button 
                       onClick={handleVerifySolution}
                       disabled={!solutionHash || isMinting || isConfirming}
-                      className="w-full py-5 bg-[#d4af37] hover:bg-[#d4af37]/80 text-black font-bold uppercase tracking-[0.3em] transition-all disabled:grayscale disabled:opacity-50"
+                      className="w-full py-5 bg-[#d4af37]/10 hover:bg-[#d4af37] border border-[#d4af37]/50 text-[#d4af37] hover:text-black font-bold uppercase tracking-[0.3em] transition-all disabled:grayscale disabled:opacity-50"
                     >
                        {isMinting ? 'Dispatching...' : isConfirming ? 'Analyzing...' : 'SUBMIT VERDICT'}
                     </button>
