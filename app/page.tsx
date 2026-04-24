@@ -25,7 +25,7 @@ const CONTRACT_ABI = [
 const GENLAYER_CONTRACT_ADDRESS = "0x868ef59CBA2857bD930F3849E0d3Fdb001F914Fa";
 
 const SFX = {
-  typewriter: "/sounds/typewriter.mp3",
+  typewriter: "/audio/typewriter.mp3",
   noir_ambient: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
   success: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
   error: "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3",
@@ -53,12 +53,10 @@ export default function Home() {
   const caseSolved = isConfirmed || !!isMasterDetective;
 
   // Investigation State
-  const [unlockedEnvelopes, setUnlockedEnvelopes] = useState([false, false, false]);
-  const [env1Code, setEnv1Code] = useState("");
-  const [env2Code, setEnv2Code] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [decryptedMessage, setDecryptedMessage] = useState("");
   const [solutionHash, setSolutionHash] = useState("");
   const [selectedEvidence, setSelectedEvidence] = useState<{ src: string; title: string } | null>(null);
-  const [env1Result, setEnv1Result] = useState("");
   const [isDecrypting, setIsDecrypting] = useState(false);
 
   // Sounds
@@ -104,25 +102,26 @@ export default function Home() {
     }
   }, [screen, isConnected, address, systemInitialized]);
 
-  const handleUnlockEnv1 = () => {
+  const handleDecrypt = () => {
     playSFX('click');
-    const targetHash = "0x616c6565785f69735f7468655f6861636b6572";
-    if (env1Code.trim() === targetHash) {
+    const correctHash = "0x616c6565785f69735f7468655f6861636b6572";
+    if (inputValue.trim() === correctHash) {
       setIsDecrypting(true);
       playSFX('success');
-      let fullMsg = "DECRYPTION SUCCESSFUL: Admin private key leak detected. Target: ShadowAdmin.";
+      let targetMsg = "SUCCESS: Admin credentials compromised. Target: ShadowAdmin.";
       let i = 0;
       const t = setInterval(() => {
-        setEnv1Result(fullMsg.slice(0, i));
+        setDecryptedMessage(targetMsg.slice(0, i));
+        playSFX('typewriter');
         i++;
-        if (i > fullMsg.length) {
+        if (i > targetMsg.length) {
           clearInterval(t);
           setIsDecrypting(false);
           setUnlockedEnvelopes([true, unlockedEnvelopes[1], unlockedEnvelopes[2]]);
         }
-      }, 30);
+      }, 50);
     } else {
-      setEnv1Result("ERROR: INVALID KEY. ACCESS DENIED.");
+      setDecryptedMessage("ERROR: ACCESS DENIED.");
       playSFX('error');
     }
   };
@@ -255,8 +254,8 @@ export default function Home() {
                <h2 className="text-[10px] font-mono uppercase text-zinc-500 mb-6 flex items-center gap-2 tracking-[0.2em]">
                  <Wallet size={14} /> Agent Identity Verified
                </h2>
-               <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.jpg", title: "Field Agent Identity Pass" })} className="polaroid w-48 mx-auto sm:mx-0">
-                  <img src="/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.jpg" alt="Identity" className="object-cover h-32 w-full" />
+               <div onClick={() => setSelectedEvidence({ src: "/field_agent_pass.jpg", title: "Field Agent Identity Pass" })} className="polaroid w-48 mx-auto sm:mx-0">
+                  <img src="/field_agent_pass.jpg" alt="Identity" className="object-cover h-32 w-full" />
                   <div className="polaroid-caption">#ID-G01 // CONFIDENTIAL</div>
                </div>
             </section>
@@ -266,16 +265,16 @@ export default function Home() {
                  <Search size={14} /> Evidence Locker: File #01
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime-scene.jpg", title: "Evidence A: Nexus Server Room" })} className="polaroid -rotate-1">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime-scene.jpg" alt="A" className="object-cover h-32 w-full" />
+                <div onClick={() => setSelectedEvidence({ src: "/crime-scene.jpg", title: "Evidence A: Nexus Server Room" })} className="polaroid -rotate-1">
+                   <img src="/crime-scene.jpg" alt="A" className="object-cover h-32 w-full" />
                    <div className="polaroid-caption">SCENE // 23:44</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/police-report.jpg", title: "Agency Intelligence Report" })} className="polaroid rotate-2">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/police-report.jpg" alt="B" className="object-cover h-32 w-full" />
+                <div onClick={() => setSelectedEvidence({ src: "/police-report.jpg", title: "Agency Intelligence Report" })} className="polaroid rotate-2">
+                   <img src="/police-report.jpg" alt="B" className="object-cover h-32 w-full" />
                    <div className="polaroid-caption">INTEL // LOGS</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.jpg", title: "Decentralized Transaction Logs" })} className="polaroid -rotate-2">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.jpg" alt="C" className="object-cover h-32 w-full" />
+                <div onClick={() => setSelectedEvidence({ src: "/wallet_logs.jpg", title: "Decentralized Transaction Logs" })} className="polaroid -rotate-2">
+                   <img src="/wallet_logs.jpg" alt="C" className="object-cover h-32 w-full" />
                    <div className="polaroid-caption">WALLET // 0xAF</div>
                 </div>
               </div>
@@ -291,17 +290,17 @@ export default function Home() {
                  <div className="terminal-box p-6 flex flex-col items-center min-h-[160px]">
                     {!unlockedEnvelopes[0] ? (
                       <>
-                        <input type="text" value={env1Code} onChange={(e)=>setEnv1Code(e.target.value)} placeholder="DECRYPT KEY" className="w-full bg-black/50 border border-[#d4af37]/30 p-3 text-[10px] font-mono text-[#d4af37] mb-3 focus:outline-none focus:border-[#d4af37]" />
-                        <button onClick={handleUnlockEnv1} disabled={isDecrypting} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all disabled:opacity-50 mb-4">Decrypt</button>
-                        {env1Result && (
-                          <div className={`text-[9px] font-mono uppercase text-center leading-relaxed ${env1Result.includes('ERROR') ? 'text-red-500 animate-pulse' : 'text-[#d4af37]'}`}>
-                            {env1Result}
+                        <input type="text" value={inputValue} onChange={(e)=>setInputValue(e.target.value)} placeholder="DECRYPT KEY" className="w-full bg-black/50 border border-[#d4af37]/30 p-3 text-[10px] font-mono text-[#d4af37] mb-3 focus:outline-none focus:border-[#d4af37]" />
+                        <button onClick={handleDecrypt} disabled={isDecrypting} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all disabled:opacity-50 mb-4">Decrypt</button>
+                        {decryptedMessage && (
+                          <div className={`text-[9px] font-mono uppercase text-center leading-relaxed ${decryptedMessage.includes('ERROR') ? 'text-red-500 animate-pulse' : 'text-[#d4af37]'}`}>
+                            {decryptedMessage}
                           </div>
                         )}
                       </>
                     ) : (
-                      <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "Decoded Index #01" })} className="cursor-pointer group w-full">
-                        <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" className="w-full h-20 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-4" />
+                      <div onClick={() => setSelectedEvidence({ src: "/env1_clue.jpg", title: "Decoded Index #01" })} className="cursor-pointer group w-full">
+                        <img src="/env1_clue.jpg" className="w-full h-20 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-4" />
                         <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">DATA BLOB #01 // RECOVERED</p>
                       </div>
                     )}
