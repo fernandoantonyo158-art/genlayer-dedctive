@@ -58,6 +58,8 @@ export default function Home() {
   const [env2Code, setEnv2Code] = useState("");
   const [solutionHash, setSolutionHash] = useState("");
   const [selectedEvidence, setSelectedEvidence] = useState<{ src: string; title: string } | null>(null);
+  const [env1Result, setEnv1Result] = useState("");
+  const [isDecrypting, setIsDecrypting] = useState(false);
 
   // Sounds
   const playSFX = (type: keyof typeof SFX) => {
@@ -104,10 +106,25 @@ export default function Home() {
 
   const handleUnlockEnv1 = () => {
     playSFX('click');
-    if (env1Code.toUpperCase().trim() === "LEGEND") {
-      setUnlockedEnvelopes([true, unlockedEnvelopes[1], unlockedEnvelopes[2]]);
+    const targetHash = "0x616c6565785f69735f7468655f6861636b6572";
+    if (env1Code.trim() === targetHash) {
+      setIsDecrypting(true);
       playSFX('success');
-    } else playSFX('error');
+      let fullMsg = "DECRYPTION SUCCESSFUL: Admin private key leak detected. Target: ShadowAdmin.";
+      let i = 0;
+      const t = setInterval(() => {
+        setEnv1Result(fullMsg.slice(0, i));
+        i++;
+        if (i > fullMsg.length) {
+          clearInterval(t);
+          setIsDecrypting(false);
+          setUnlockedEnvelopes([true, unlockedEnvelopes[1], unlockedEnvelopes[2]]);
+        }
+      }, 30);
+    } else {
+      setEnv1Result("ERROR: INVALID KEY. ACCESS DENIED.");
+      playSFX('error');
+    }
   };
 
   const handleUnlockEnv2 = () => {
@@ -271,16 +288,21 @@ export default function Home() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                  {/* Env #1 */}
-                 <div className="terminal-box p-6 flex flex-col items-center">
+                 <div className="terminal-box p-6 flex flex-col items-center min-h-[160px]">
                     {!unlockedEnvelopes[0] ? (
                       <>
-                        <input type="text" value={env1Code} onChange={(e)=>setEnv1Code(e.target.value)} placeholder="DECRYPT KEY" className="w-full bg-black/50 border border-[#d4af37]/30 p-3 text-[10px] font-mono text-[#d4af37] mb-3" />
-                        <button onClick={handleUnlockEnv1} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all">Decrypt</button>
+                        <input type="text" value={env1Code} onChange={(e)=>setEnv1Code(e.target.value)} placeholder="DECRYPT KEY" className="w-full bg-black/50 border border-[#d4af37]/30 p-3 text-[10px] font-mono text-[#d4af37] mb-3 focus:outline-none focus:border-[#d4af37]" />
+                        <button onClick={handleUnlockEnv1} disabled={isDecrypting} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all disabled:opacity-50 mb-4">Decrypt</button>
+                        {env1Result && (
+                          <div className={`text-[9px] font-mono uppercase text-center leading-relaxed ${env1Result.includes('ERROR') ? 'text-red-500 animate-pulse' : 'text-[#d4af37]'}`}>
+                            {env1Result}
+                          </div>
+                        )}
                       </>
                     ) : (
-                      <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "Decoded Index #01" })} className="cursor-pointer group">
-                        <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
-                        <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">DATA BLOB #01</p>
+                      <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "Decoded Index #01" })} className="cursor-pointer group w-full">
+                        <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" className="w-full h-20 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-4" />
+                        <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">DATA BLOB #01 // RECOVERED</p>
                       </div>
                     )}
                  </div>
