@@ -25,7 +25,7 @@ const CONTRACT_ABI = [
 const GENLAYER_CONTRACT_ADDRESS = "0x868ef59CBA2857bD930F3849E0d3Fdb001F914Fa";
 
 const SFX = {
-  typewriter: "https://assets.mixkit.co/active_storage/sfx/590/590-preview.mp3",
+  typewriter: "https://assets.mixkit.co/active_storage/sfx/588/588-preview.mp3",
   noir_ambient: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Low noir ambient placeholder
   success: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
   error: "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3",
@@ -147,7 +147,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="max-w-3xl w-full">
-             <div className="noir-panel p-8 md:p-12 font-mono text-sm leading-loose whitespace-pre-wrap text-zinc-400 border-l-4 border-[#d4af37]">
+             <div className="noir-panel p-8 md:p-12 font-mono text-sm leading-loose whitespace-pre-wrap text-zinc-400 border-l-4 border-[#d4af37] terminal-monitor">
                 {introText}
                 {!introFinished && <span className="cursor-blink"></span>}
                 
@@ -271,7 +271,7 @@ export default function Home() {
                       <>
                         <Lock className="text-zinc-800 mb-4" />
                         <input type="text" value={env1Code} onChange={(e)=>setEnv1Code(e.target.value)} placeholder="DECRYPT KEY" className="w-full bg-zinc-900 border-none p-2 text-[10px] font-mono text-zinc-400 mb-2 focus:ring-1 focus:ring-[#d4af37]" />
-                        <button onClick={handleUnlockEnv1} className="w-full py-2 bg-transparent border border-white/10 hover:border-[#d4af37] text-[10px] uppercase font-bold transition-all">Settle Hash</button>
+                        <button onClick={handleUnlockEnv1} className="w-full py-2 bg-transparent border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black text-[10px] uppercase font-bold transition-all">Settle Hash</button>
                       </>
                     ) : (
                       <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "Decoded Pattern #01" })} className="cursor-pointer group">
@@ -294,7 +294,7 @@ export default function Home() {
                     {unlockedEnvelopes[0] && !unlockedEnvelopes[1] && (
                        <div className="w-full mt-auto">
                         <input type="text" value={env2Code} onChange={(e)=>setEnv2Code(e.target.value)} placeholder="TIMESTAMP" className="w-full bg-zinc-900 border-none p-2 text-[10px] font-mono text-zinc-400 mb-2 focus:ring-1 focus:ring-[#d4af37]" />
-                        <button onClick={handleUnlockEnv2} className="w-full py-2 bg-transparent border border-white/10 hover:border-[#d4af37] text-[10px] uppercase font-bold transition-all">Verify Bio</button>
+                        <button onClick={handleUnlockEnv2} className="w-full py-2 bg-transparent border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black text-[10px] uppercase font-bold transition-all">Verify Bio</button>
                        </div>
                     )}
                  </div>
@@ -304,7 +304,7 @@ export default function Home() {
 
         {/* Portal Column */}
         <div className="space-y-12">
-            <section className="noir-panel p-8 space-y-6">
+            <section className="noir-panel p-8 space-y-6 terminal-monitor">
                 <h3 className="text-sm font-bold uppercase tracking-[0.2em] flex items-center gap-2">
                    <ShieldAlert size={18} className="text-[#d4af37]" /> Intelligence Portal
                 </h3>
