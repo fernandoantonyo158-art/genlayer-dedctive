@@ -219,7 +219,7 @@ export default function Home() {
                </h2>
                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.jpg", title: "Field Agent Identity Pass" })} className="polaroid w-48 mx-auto sm:mx-0">
                   <img src="/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.jpg" alt="Identity" />
-                  <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">#ID-G01 // CONFIDENTIAL</div>
+                  <div className="polaroid-caption">#ID-G01 // CONFIDENTIAL</div>
                </div>
             </section>
 
@@ -228,17 +228,17 @@ export default function Home() {
                  <Search size={14} /> Evidence Locker: File #01
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime-scene.jpg", title: "Evidence A: Nexus Server Room" })} className="polaroid -rotate-1 border border-white/10">
+                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime-scene.jpg", title: "Evidence A: Nexus Server Room" })} className="polaroid -rotate-1">
                    <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime-scene.jpg" alt="A" />
-                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">SCENE // 23:44</div>
+                   <div className="polaroid-caption">SCENE // 23:44</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/police-report.jpg", title: "Agency Intelligence Report" })} className="polaroid rotate-2 border border-white/10">
+                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/police-report.jpg", title: "Agency Intelligence Report" })} className="polaroid rotate-2">
                    <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/police-report.jpg" alt="B" />
-                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">INTEL // LOGS</div>
+                   <div className="polaroid-caption">INTEL // LOGS</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.jpg", title: "Decentralized Transaction Logs" })} className="polaroid -rotate-2 border border-white/10">
+                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.jpg", title: "Decentralized Transaction Logs" })} className="polaroid -rotate-2">
                    <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.jpg" alt="C" />
-                   <div className="text-[8px] font-mono text-black/40 mt-4 uppercase">WALLET // 0xAF</div>
+                   <div className="polaroid-caption">WALLET // 0xAF</div>
                 </div>
               </div>
             </section>
@@ -269,7 +269,7 @@ export default function Home() {
                     {!unlockedEnvelopes[1] ? (
                        unlockedEnvelopes[0] ? (
                         <div className="w-full mt-auto">
-                          <input type="text" value={env2Code} onChange={(e)=>setEnv2Code(e.target.value)} placeholder="TIMESTAMP" className="w-full bg-black/50 border border-[#d4af37]/30 p-2 text-[10px] font-mono text-[#d4af37] mb-2" />
+                          <input type="text" value={env2Code} onChange={(e)=>setEnv2Code(e.target.value)} placeholder="TIMESTAMP" className="w-full bg-black/50 border border-[#d4af37]/30 p-2 text-[10px] font-mono text-[#d4af37]/60 placeholder:text-[#d4af37]/40 mb-2 focus:text-[#d4af37] transition-all" />
                           <button onClick={handleUnlockEnv2} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all">Verify Bio</button>
                         </div>
                        ) : <Lock className="text-zinc-900/40 opacity-20" size={32} />
@@ -303,7 +303,7 @@ export default function Home() {
                   <div className="text-center py-6 space-y-4"><Trophy className="w-12 h-12 mx-auto text-[#d4af37]" /><p className="text-xs font-bold uppercase">Master Detective Verified</p></div>
                 ) : (
                   <>
-                    <input type="text" value={solutionHash} onChange={(e)=>setSolutionHash(e.target.value)} className="w-full bg-black/50 border border-[#d4af37]/30 p-4 text-xs font-mono text-[#d4af37]" placeholder="IDENT_UNKNOWN" />
+                    <input type="text" value={solutionHash} onChange={(e)=>setSolutionHash(e.target.value)} className="w-full bg-black/50 border border-[#d4af37]/30 p-4 text-xs font-mono text-[#d4af37]/60 placeholder:text-[#d4af37]/40 focus:text-[#d4af37] transition-all" placeholder="IDENT_UNKNOWN" />
                     <button onClick={handleVerifySolution} disabled={isMinting || isConfirming} className="w-full py-5 bg-[#d4af37] text-black font-bold uppercase tracking-[0.3em] hover:bg-white transition-all disabled:opacity-50">SUBMIT VERDICT</button>
                   </>
                 )}
