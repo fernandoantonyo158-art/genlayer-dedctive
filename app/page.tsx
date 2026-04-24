@@ -254,8 +254,8 @@ export default function Home() {
                <h2 className="text-[10px] font-mono uppercase text-zinc-500 mb-6 flex items-center gap-2 tracking-[0.2em]">
                  <Wallet size={14} /> Agent Identity Verified
                </h2>
-               <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.png", title: "Field Agent Identity Pass" })} className="polaroid w-48 mx-auto sm:mx-0">
-                  <img src="/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.png" alt="Identity" className="object-cover h-32 w-full" />
+               <div onClick={() => setSelectedEvidence({ src: "/field_agent_pass.jpg", title: "Field Agent Identity Pass" })} className="polaroid w-48 mx-auto sm:mx-0">
+                  <img src="/field_agent_pass.jpg" alt="" className="object-cover h-32 w-full" />
                   <div className="polaroid-caption">#ID-G01 // CONFIDENTIAL</div>
                </div>
             </section>
@@ -266,15 +266,15 @@ export default function Home() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
                 <div onClick={() => setSelectedEvidence({ src: "/crime-scene.jpg", title: "Evidence A: Nexus Server Room" })} className="polaroid -rotate-1">
-                   <img src="/crime-scene.jpg" alt="A" className="object-cover h-32 w-full" />
+                   <img src="/crime-scene.jpg" alt="" className="object-cover h-32 w-full" />
                    <div className="polaroid-caption">SCENE // 23:44</div>
                 </div>
                 <div onClick={() => setSelectedEvidence({ src: "/police-report.jpg", title: "Agency Intelligence Report" })} className="polaroid rotate-2">
-                   <img src="/police-report.jpg" alt="B" className="object-cover h-32 w-full" />
+                   <img src="/police-report.jpg" alt="" className="object-cover h-32 w-full" />
                    <div className="polaroid-caption">INTEL // LOGS</div>
                 </div>
-                <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png", title: "Decentralized Transaction Logs" })} className="polaroid -rotate-2">
-                   <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png" alt="C" className="object-cover h-32 w-full" />
+                <div onClick={() => setSelectedEvidence({ src: "/wallet_logs.jpg", title: "Decentralized Transaction Logs" })} className="polaroid -rotate-2">
+                   <img src="/wallet_logs.jpg" alt="" className="object-cover h-32 w-full" />
                    <div className="polaroid-caption">WALLET // 0xAF</div>
                 </div>
               </div>
@@ -319,8 +319,8 @@ export default function Home() {
 
                  <div className="terminal-box p-6 flex flex-col items-center justify-center border-dashed opacity-80">
                     {unlockedEnvelopes[0] ? (
-                       <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png", title: "Final Target identified" }); }} className="cursor-pointer group">
-                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png" className="w-full h-16 object-cover grayscale group-hover:grayscale-0 transition-all mb-2 border border-[#d4af37]/40" />
+                       <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_clue_final.jpg", title: "Final Target identified" }); }} className="cursor-pointer group">
+                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_clue_final.jpg" alt="" className="w-full h-16 object-cover grayscale group-hover:grayscale-0 transition-all mb-2 border border-[#d4af37]/40" />
                          <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">FINAL VERDICT</p>
                        </div>
                     ) : (
