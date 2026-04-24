@@ -54,6 +54,9 @@ export default function Home() {
 
   const caseSolved = isConfirmed || !!isMasterDetective;
 
+  // Lightbox State
+  const [selectedEvidence, setSelectedEvidence] = useState<{ src: string; title: string } | null>(null);
+
   // Envelope unlock codes
   const [env1Code, setEnv1Code] = useState("");
   const [env2Code, setEnv2Code] = useState("");
@@ -150,17 +153,26 @@ export default function Home() {
               <Database className="text-neonBlue" /> Evidence Locker
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="h-40 relative rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-sm p-4 hover:border-neonBlue transition-colors group cursor-pointer overflow-hidden bg-black">
+              <div 
+                onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime_scene.png", title: "Crime Scene Photo" })}
+                className="h-40 relative rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-sm p-4 hover:border-neonBlue transition-colors group cursor-pointer overflow-hidden bg-black"
+              >
                 <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime_scene.png" alt="Crime Scene" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-80 transition-opacity" />
                 <FileImage className="w-8 h-8 mb-2 text-zinc-300 group-hover:text-white transition-colors relative z-10" />
                 <span className="font-mono text-zinc-300 group-hover:text-white transition-colors relative z-10 drop-shadow-lg">Crime Scene Photo</span>
               </div>
-              <div className="h-40 relative rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-sm p-4 hover:border-neonBlue transition-colors group cursor-pointer overflow-hidden bg-black">
+              <div 
+                onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png", title: "Wallet Transaction Log" })}
+                className="h-40 relative rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-sm p-4 hover:border-neonBlue transition-colors group cursor-pointer overflow-hidden bg-black"
+              >
                 <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png" alt="Wallet Logs" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-80 transition-opacity" />
                 <FileText className="w-8 h-8 mb-2 text-zinc-300 group-hover:text-white transition-colors relative z-10" />
                 <span className="font-mono text-zinc-300 group-hover:text-white transition-colors relative z-10 drop-shadow-lg">Wallet Transaction Log</span>
               </div>
-              <div className="h-40 relative rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-sm p-4 hover:border-neonBlue transition-colors group cursor-pointer overflow-hidden bg-black">
+              <div 
+                onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 02 Main_Evidence/police_report.png", title: "Police Report" })}
+                className="h-40 relative rounded-lg border border-zinc-700 flex flex-col items-center justify-center text-sm p-4 hover:border-neonBlue transition-colors group cursor-pointer overflow-hidden bg-black"
+              >
                 <img src="/GenLayer_Game_Assets/Folder 02 Main_Evidence/police_report.png" alt="Police Report" className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-80 transition-opacity" />
                 <Cpu className="w-8 h-8 mb-2 text-zinc-300 group-hover:text-white transition-colors relative z-10" />
                 <span className="font-mono text-zinc-300 group-hover:text-white transition-colors relative z-10 drop-shadow-lg">Police Report</span>
@@ -193,7 +205,9 @@ export default function Home() {
                     </div>
                   ) : (
                     <div className="w-full flex flex-col items-center mt-auto">
-                       <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" alt="Envelope 1 Clue" className="w-full h-20 object-cover rounded mb-2 border border-neonGreen/30" />
+                       <img 
+                        onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "Decrypted Clue #1" })}
+                        src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" alt="Envelope 1 Clue" className="w-full h-20 object-cover rounded mb-2 border border-neonGreen/30 cursor-pointer hover:border-neonGreen transition-all" />
                        <p className="text-xs text-neonGreen font-mono break-all animate-pulse">DECRYPTED:<br/>The hidden hex code translates to a transaction timestamp: <span className="font-bold">03:14:07</span>.</p>
                     </div>
                   )}
@@ -219,7 +233,9 @@ export default function Home() {
                     </div>
                   ) : (
                      <div className="w-full flex flex-col items-center mt-auto">
-                       <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png" alt="Envelope 2 Clue" className="w-full h-20 object-cover rounded mb-2 border border-neonBlue/30" />
+                       <img 
+                        onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png", title: "Decrypted Clue #2" })}
+                        src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png" alt="Envelope 2 Clue" className="w-full h-20 object-cover rounded mb-2 border border-neonBlue/30 cursor-pointer hover:border-neonBlue transition-all" />
                        <p className="text-xs text-neonBlue font-mono animate-pulse">Clue: The timestamp matches a single node operator known only as "The Architect." Submit the culprit's true identity to the portal.</p>
                      </div>
                   )}
@@ -233,7 +249,9 @@ export default function Home() {
                     <p className="text-xs text-zinc-500 mt-auto">Locked pending previous solves.</p>
                   ) : (
                     <div className="w-full flex flex-col items-center mt-auto">
-                       <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png" alt="Envelope 3 Clue" className="w-full h-20 object-cover rounded mb-2 border border-yellow-500/30" />
+                       <img 
+                        onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png", title: "Final Suspect Identified" })}
+                        src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png" alt="Envelope 3 Clue" className="w-full h-20 object-cover rounded mb-2 border border-yellow-500/30 cursor-pointer hover:border-yellow-500 transition-all" />
                        <p className="text-xs text-yellow-500 font-mono mt-auto text-balance">Profile complete. Target identified as ALEX. Proceed to Portal.</p>
                     </div>
                   )}
@@ -294,6 +312,39 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* Lightbox Modal */}
+      {selectedEvidence && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 animate-in fade-in duration-300"
+          onClick={() => setSelectedEvidence(null)}
+        >
+           <div className="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+           
+           <div 
+             className="relative max-w-5xl w-full flex flex-col items-center z-10"
+             onClick={(e) => e.stopPropagation()}
+           >
+              <button 
+                onClick={() => setSelectedEvidence(null)}
+                className="absolute -top-12 right-0 text-white font-mono hover:text-neonBlue transition-colors flex items-center gap-2 text-sm uppercase"
+              >
+                [ Close Terminal ]
+              </button>
+              
+              <div className="cyber-panel p-2 rounded-lg glow-blue overflow-hidden relative group">
+                <img 
+                  src={selectedEvidence.src} 
+                  alt={selectedEvidence.title} 
+                  className="max-h-[80vh] w-auto rounded border border-zinc-800" 
+                />
+                <div className="absolute bottom-0 inset-x-0 bg-black/80 p-4 border-t border-neonBlue translate-y-full group-hover:translate-y-0 transition-transform">
+                   <p className="font-mono text-neonBlue text-sm uppercase tracking-widest">{selectedEvidence.title}</p>
+                </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
