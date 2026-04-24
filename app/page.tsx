@@ -278,8 +278,8 @@ export default function Home() {
                         <button onClick={handleUnlockEnv1} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all">Decrypt</button>
                       </>
                     ) : (
-                      <div onClick={() => setSelectedEvidence({ src: "/env1_clue.jpg", title: "Decoded Index #01" })} className="cursor-pointer group">
-                        <img src="/env1_clue.jpg" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
+                      <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.jpg", title: "Decoded Index #01" })} className="cursor-pointer group">
+                        <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.jpg" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
                         <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">DATA BLOB #01</p>
                       </div>
                     )}
@@ -295,8 +295,8 @@ export default function Home() {
                         </div>
                        ) : <Lock className="text-zinc-900/40 opacity-20" size={32} />
                     ) : (
-                      <div onClick={() => setSelectedEvidence({ src: "/env2_clue.jpg", title: "Operator Intel" })} className="cursor-pointer group">
-                         <img src="/env2_clue.jpg" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
+                      <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.jpg", title: "Operator Intel" })} className="cursor-pointer group">
+                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.jpg" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
                          <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">ARCHITECT ID</p>
                       </div>
                     )}
@@ -305,8 +305,8 @@ export default function Home() {
                  {/* Env #3 Final */}
                  <div className="terminal-box p-6 flex flex-col items-center justify-center border-dashed opacity-80">
                     {unlockedEnvelopes[1] ? (
-                       <div onClick={() => setSelectedEvidence({ src: "/env3_clue_final.jpg", title: "Final Target identified" })} className="cursor-pointer group">
-                         <img src="/env3_clue_final.jpg" className="w-full h-16 object-cover grayscale group-hover:grayscale-0 transition-all mb-2 border border-[#d4af37]/40" />
+                       <div onClick={() => setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_clue_final.jpg", title: "Final Target identified" })} className="cursor-pointer group">
+                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_clue_final.jpg" className="w-full h-16 object-cover grayscale group-hover:grayscale-0 transition-all mb-2 border border-[#d4af37]/40" />
                          <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">FINAL VERDICT</p>
                        </div>
                     ) : (
