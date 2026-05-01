@@ -44,6 +44,7 @@ export default function VerdictMint() {
       playSFX("success");
       if (typeof window !== 'undefined') {
         localStorage.setItem('case02_complete', 'true');
+        localStorage.setItem('goto_selection', 'true');
       }
       setTimeout(() => router.push("/"), 3000);
     }

@@ -87,6 +87,13 @@ function HomeContent() {
     if (typeof window !== 'undefined') {
       setCase01Complete(localStorage.getItem('case01_complete') === 'true');
       setCase02Complete(localStorage.getItem('case02_complete') === 'true');
+
+      /* Post-mint redirect: skip intro and land directly on case selection */
+      if (localStorage.getItem('goto_selection') === 'true') {
+        localStorage.removeItem('goto_selection'); // consume the flag
+        setSystemInitialized(true);
+        setScreen('selection');
+      }
     }
   }, []);
 

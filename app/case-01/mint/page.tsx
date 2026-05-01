@@ -97,8 +97,12 @@ export default function MintPage() {
     if (isConfirmed && signatureComplete) {
       setTimeout(() => setDeploying(true), 1500);
       setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('case01_complete', 'true');
+          localStorage.setItem('goto_selection', 'true');
+        }
         router.push('/');
-      }, 500);
+      }, 2000);
     }
   }, [isConfirmed, signatureComplete, router]);
 
