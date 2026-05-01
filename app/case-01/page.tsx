@@ -95,15 +95,23 @@ export default function Case01() {
   const initializeAudioContext = () => {
     if (!audioContextInitialized) {
       setAudioContextInitialized(true);
-      if (typewriterRef.current) {
-        typewriterRef.current.play().catch(() => {});
-      }
     }
   };
 
   useEffect(() => {
     startBGM();
   }, [startBGM]);
+
+  /* Kill typewriter on unmount — prevents it leaking to other pages */
+  useEffect(() => {
+    return () => {
+      if (typewriterRef.current) {
+        typewriterRef.current.pause();
+        typewriterRef.current.currentTime = 0;
+        typewriterRef.current = null;
+      }
+    };
+  }, []);
 
   // Handle transaction confirmation for decrypt
   useEffect(() => {
@@ -268,7 +276,7 @@ export default function Case01() {
                         <p className="text-[8px] font-mono text-zinc-600 text-center mt-1">Cost: 0.2 GEN per action</p>
                       </>
                     ) : (
-                      <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "ENV #01 // RECOVERED" }); }} className="cursor-pointer group w-full">
+                      <div onClick={() => { playSFX('click'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "ENV #01 // RECOVERED" }); }} className="cursor-pointer group w-full">
                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" alt="" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
                         <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">ENV #01 // RECOVERED</p>
                       </div>
@@ -277,7 +285,7 @@ export default function Case01() {
                  
                  <div className="terminal-box p-4 flex flex-col items-center justify-center min-h-[120px]">
                     {isPatternDecrypted ? (
-                      <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png", title: "ENV #02 // RECOVERED" }); }} className="cursor-pointer group animate-in fade-in duration-500">
+                      <div onClick={() => { playSFX('click'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png", title: "ENV #02 // RECOVERED" }); }} className="cursor-pointer group animate-in fade-in duration-500">
                          <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png" alt="" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
                          <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">ENV #02 // RECOVERED</p>
                       </div>
@@ -291,7 +299,7 @@ export default function Case01() {
 
                  <div className="terminal-box p-4 flex flex-col items-center justify-center min-h-[120px]">
                     {isPatternDecrypted ? (
-                       <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png", title: "FINAL VERDICT" }); }} className="cursor-pointer group animate-in fade-in duration-500">
+                       <div onClick={() => { playSFX('click'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png", title: "FINAL VERDICT" }); }} className="cursor-pointer group animate-in fade-in duration-500">
                          <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png" alt="" className="w-full h-16 object-cover grayscale group-hover:grayscale-0 transition-all mb-2 border border-[#d4af37]/40" />
                          <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">FINAL VERDICT</p>
                        </div>

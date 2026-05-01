@@ -200,6 +200,18 @@ function HomeContent() {
     }
   }, [screen, isConnected, address, systemInitialized, audioContextInitialized]);
 
+  /* Kill typewriter on unmount — fires when user navigates away mid-intro */
+  useEffect(() => {
+    return () => {
+      if (typewriterRef.current) {
+        typewriterRef.current.pause();
+        typewriterRef.current.currentTime = 0;
+        typewriterRef.current.loop = false;
+        typewriterRef.current = null;
+      }
+    };
+  }, []);
+
   // --------------------------------------------------------------------------------
   // SCREEN: Intro Terminal
   // --------------------------------------------------------------------------------
