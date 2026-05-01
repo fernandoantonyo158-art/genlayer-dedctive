@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 
 interface AudioContextType {
   soundEnabled: boolean;
@@ -23,74 +23,44 @@ const SFX = {
 
 export function AudioProvider({ children }: { children: ReactNode }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [bgmRef, setBgmRef] = useState<HTMLAudioElement | null>(null);
-  const [autoStartBGM, setAutoStartBGM] = useState(false);
+  const bgm = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize background music and set up first interaction listener
+  /* Create the BGM Audio object exactly once */
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const bgm = new Audio('/investigation-theme.mp3');
-      bgm.loop = true;
-      bgm.volume = 0.3;
-      setBgmRef(bgm);
+    if (typeof window === 'undefined') return;
+    const audio = new Audio('/investigation-theme.mp3');
+    audio.loop = true;
+    audio.volume = 0.3;
+    bgm.current = audio;
+    return () => { audio.pause(); bgm.current = null; };
+  }, []); // ← empty deps: never re-creates
 
-      // Set up first interaction listener to handle autoplay policies
-      const handleFirstInteraction = () => {
-        if (bgm.paused && soundEnabled) {
-          bgm.play().catch(() => {});
-          // Remove listener after first interaction
-          document.removeEventListener('click', handleFirstInteraction);
-          document.removeEventListener('keydown', handleFirstInteraction);
-        }
-      };
-
-      // Add event listeners for first user interaction
-      document.addEventListener('click', handleFirstInteraction, { once: false });
-      document.addEventListener('keydown', handleFirstInteraction, { once: false });
-      
-      return () => {
-        document.removeEventListener('click', handleFirstInteraction);
-        document.removeEventListener('keydown', handleFirstInteraction);
-      };
+  /* React to mute toggle — immediately stop or resume BGM */
+  useEffect(() => {
+    const audio = bgm.current;
+    if (!audio) return;
+    if (!soundEnabled) {
+      audio.pause();
+    } else if (audio.currentTime > 0) {
+      audio.play().catch(() => {});
     }
-    return () => {
-      if (bgmRef) {
-        bgmRef.pause();
-      }
-    };
   }, [soundEnabled]);
 
-  // Handle BGM play/pause based on sound enabled state and auto-start flag
-  useEffect(() => {
-    if (bgmRef && autoStartBGM) {
-      if (soundEnabled) {
-        bgmRef.play().catch(() => {});
-      } else {
-        bgmRef.pause();
-      }
-    }
-  }, [soundEnabled, bgmRef, autoStartBGM]);
-
-  const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
-  };
+  const toggleSound = () => setSoundEnabled(prev => !prev);
 
   const playSFX = (type: string) => {
     if (!soundEnabled) return;
-    
     const audioUrl = SFX[type as keyof typeof SFX];
     if (!audioUrl) return;
-
     const audio = new Audio(audioUrl);
     audio.volume = 0.4;
     audio.play().catch(() => {});
   };
 
   const startBGM = () => {
-    setAutoStartBGM(true);
-    if (bgmRef && soundEnabled) {
-      bgmRef.play().catch(() => {});
-    }
+    const audio = bgm.current;
+    if (!audio || !soundEnabled) return;
+    audio.play().catch(() => {});
   };
 
   return (
