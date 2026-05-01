@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { ShieldAlert, Cpu } from "lucide-react";
+import { useReadContract, useAccount, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from "wagmi";
+import { useRouter } from "next/navigation";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Lock, Unlock, FileImage, FileText, Database, ShieldAlert, Cpu, Trophy, Volume2, VolumeX, FolderOpen, Search, Wallet } from "lucide-react";
-import { useReadContract, useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import NFTMinter from "@/components/NFTMinter";
+import { useBadge } from "@/contexts/BadgeContext";
+import { useAudio } from "@/contexts/AudioContext";
 
 const CONTRACT_ABI = [
   {
@@ -25,19 +29,39 @@ const CONTRACT_ABI = [
 const GENLAYER_CONTRACT_ADDRESS = "0x868ef59CBA2857bD930F3849E0d3Fdb001F914Fa";
 
 const SFX = {
-  typewriter: "/typewriter.mp3",
-  noir_ambient: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+  typewriter: "/audio/typewriter.mp3",
+  investigation_theme: "/investigation-theme.mp3",
   success: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
   error: "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3",
   click: "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
 };
 
-export default function Home() {
-  const { isConnected, address } = useAccount();
+function HomeContent() {
+  const { isConnected, address, chainId } = useAccount();
+  const { switchChain } = useSwitchChain();
+  const { hasBadge, refreshBadge } = useBadge();
+  const { soundEnabled, toggleSound, playSFX, startBGM } = useAudio();
+  const router = useRouter();
   const [systemInitialized, setSystemInitialized] = useState(false);
-  const [screen, setScreen] = useState<'intro' | 'selection' | 'investigation'>('intro');
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [screen, setScreen] = useState<'intro' | 'selection' | 'investigation' | 'reward'>('intro');
+  const [audioContextInitialized, setAudioContextInitialized] = useState(false);
   const ambientRef = useRef<HTMLAudioElement | null>(null);
+  const typewriterRef = useRef<HTMLAudioElement | null>(null);
+
+  // Auto-switch to GenLayer Bradbury if on wrong network
+  useEffect(() => {
+    if (isConnected && chainId && chainId !== 4221) {
+      switchChain({ chainId: 4221 });
+    }
+  }, [isConnected, chainId, switchChain]);
+
+  // Initialize typewriter audio ref for intro
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !typewriterRef.current) {
+      typewriterRef.current = new Audio(SFX.typewriter);
+      typewriterRef.current.volume = 0.8;
+    }
+  }, []);
 
   // Contract Logic
   const { data: hash, writeContract, isPending: isMinting } = useWriteContract();
@@ -50,35 +74,84 @@ export default function Home() {
      query: { enabled: !!address }
   });
 
-  const caseSolved = isConfirmed || !!isMasterDetective;
+  const caseSolved = isMasterDetective || screen === 'reward';
+  const [notification, setNotification] = useState<string | null>(null);
+  const [debugMode, setDebugMode] = useState(false);
+  const [case02Unlocked, setCase02Unlocked] = useState(true); // Force unlocked for development
+  const [unlockAnimating, setUnlockAnimating] = useState(false);
+  const [case01Complete, setCase01Complete] = useState(false);
+  const [case02Complete, setCase02Complete] = useState(false);
 
-  // Investigation State
-  const [inputValue, setInputValue] = useState("");
-  const [decryptedMessage, setDecryptedMessage] = useState("");
-  const [solutionHash, setSolutionHash] = useState("");
-  const [selectedEvidence, setSelectedEvidence] = useState<{ src: string; title: string } | null>(null);
-  const [isDecrypting, setIsDecrypting] = useState(false);
-  const [unlockedEnvelopes, setUnlockedEnvelopes] = useState([false, false, false]);
-  const [env2Code, setEnv2Code] = useState("");
+  // Read completion flags from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCase01Complete(localStorage.getItem('case01_complete') === 'true');
+      setCase02Complete(localStorage.getItem('case02_complete') === 'true');
+    }
+  }, []);
 
-  // Sounds
-  const playSFX = (type: keyof typeof SFX) => {
-    if (!soundEnabled) return;
-    const audio = new Audio(SFX[type]);
-    audio.volume = type === 'typewriter' ? 0.6 : 0.4;
-    audio.play().catch(() => {});
+  // Persistence: Skip intro if wallet already holds Agent ID (is_master_detective)
+  useEffect(() => {
+    if (isMasterDetective && screen === 'intro' && isConnected && systemInitialized) {
+      setScreen('selection');
+    }
+  }, [isMasterDetective, screen, isConnected, systemInitialized]);
+
+  // Auto-unlock Case #02 when badge is detected
+  useEffect(() => {
+    if (hasBadge && !case02Unlocked && screen === 'selection') {
+      setUnlockAnimating(true);
+      setCase02Unlocked(true);
+      playSFX('success');
+      setTimeout(() => setUnlockAnimating(false), 1000);
+    }
+  }, [hasBadge, case02Unlocked, screen]);
+
+  const handleCase02Click = () => {
+    playSFX('click');
+    refreshBadge();
+    if (hasBadge) {
+      setCase02Unlocked(true);
+      playSFX('success');
+    } else {
+      setNotification("Clearance Denied. Detective Badge #01 Required to access Case #002.");
+      playSFX('error');
+      setTimeout(() => setNotification(null), 3000);
+    }
+  };
+
+  const restartGame = () => {
+    playSFX('click');
+    setScreen('intro');
+    setSystemInitialized(false);
+    setIntroText("");
+    setIntroFinished(false);
+    setCase02Unlocked(true);
+    setNotification(null);
+  };
+
+
+  const initializeAudioContext = () => {
+    if (!audioContextInitialized) {
+      setAudioContextInitialized(true);
+    }
   };
 
   useEffect(() => {
-    if (screen !== 'intro' && soundEnabled) {
+    if (screen === 'selection') {
       if (!ambientRef.current) {
-        ambientRef.current = new Audio(SFX.noir_ambient);
+        ambientRef.current = new Audio(SFX.investigation_theme);
         ambientRef.current.loop = true;
-        ambientRef.current.volume = 0.1;
+        ambientRef.current.volume = 0.2;
       }
-      ambientRef.current.play().catch(() => {});
+      if (soundEnabled) {
+        ambientRef.current.play().catch(() => {});
+      } else {
+        ambientRef.current.pause();
+      }
     } else if (ambientRef.current) {
       ambientRef.current.pause();
+      ambientRef.current.currentTime = 0;
     }
   }, [screen, soundEnabled]);
 
@@ -88,90 +161,80 @@ export default function Home() {
   const fullIntro = `GENLAYER INTELLIGENCE AGENCY // CENTRAL DATABASE\n\nSYSTEM STATUS: CRITICAL\nAccess granted to Detective: ${address || "UNIDENTIFIED"}\n\nThe digital world is bleeding. Decentralized crimes require a new breed of investigator. You are now connected to the only system capable of processing AI-driven evidence and subjective consensus.\n\nYour directive: Navigate through the data, decode encrypted patterns, and use the power of the GenLayer Intelligent Contracts to bring justice. Select an active case file to commence deployment.`;
 
   useEffect(() => {
-    if (screen === 'intro' && isConnected && systemInitialized) {
+    if (screen === 'intro' && isConnected && systemInitialized && audioContextInitialized) {
       let i = 0;
+      if (!typewriterRef.current) {
+        typewriterRef.current = new Audio(SFX.typewriter);
+        typewriterRef.current.volume = 0.8;
+      }
+      typewriterRef.current.loop = true;
+      typewriterRef.current.play().catch(() => {});
+      
       const interval = setInterval(() => {
         setIntroText(fullIntro.slice(0, i));
-        // Trigger high-fidelity mechanical click on every character
-        playSFX('typewriter');
         i++;
         if (i > fullIntro.length) {
           clearInterval(interval);
           setIntroFinished(true);
+          if (typewriterRef.current) {
+            typewriterRef.current.pause();
+            typewriterRef.current.currentTime = 0;
+            typewriterRef.current.loop = false;
+          }
         }
-      }, 45); // Optimally timed for the mechanical feel
-      return () => clearInterval(interval);
-    }
-  }, [screen, isConnected, address, systemInitialized]);
-
-  const handleDecrypt = () => {
-    playSFX('click');
-    const correctHash = "0x616c6565785f69735f7468655f6861636b6572";
-    if (inputValue.trim() === correctHash) {
-      setIsDecrypting(true);
-      playSFX('success');
-      let targetMsg = "SUCCESS: Admin credentials compromised. Target: ShadowAdmin.";
-      let i = 0;
-      const t = setInterval(() => {
-        setDecryptedMessage(targetMsg.slice(0, i));
-        playSFX('typewriter');
-        i++;
-        if (i > targetMsg.length) {
-          clearInterval(t);
-          setIsDecrypting(false);
-          setUnlockedEnvelopes([true, unlockedEnvelopes[1], unlockedEnvelopes[2]]);
+      }, 45);
+      return () => {
+        clearInterval(interval);
+        if (typewriterRef.current) {
+          typewriterRef.current.pause();
+          typewriterRef.current.currentTime = 0;
+          typewriterRef.current.loop = false;
         }
-      }, 50);
+      };
     } else {
-      setDecryptedMessage("ERROR: ACCESS DENIED.");
-      playSFX('error');
+      if (typewriterRef.current) {
+        typewriterRef.current.pause();
+        typewriterRef.current.currentTime = 0;
+        typewriterRef.current.loop = false;
+      }
     }
-  };
-
-  const handleUnlockEnv2 = () => {
-    playSFX('click');
-    if (env2Code.trim() === "031407") {
-      setUnlockedEnvelopes([unlockedEnvelopes[0], true, true]);
-      playSFX('success');
-    } else playSFX('error');
-  };
-
-  const handleVerifySolution = () => {
-    if (!solutionHash || !address) return;
-    playSFX('click');
-    writeContract({ address: GENLAYER_CONTRACT_ADDRESS as `0x${string}`, abi: CONTRACT_ABI, functionName: 'solve_case', args: [solutionHash] });
-  };
+  }, [screen, isConnected, address, systemInitialized, audioContextInitialized]);
 
   // --------------------------------------------------------------------------------
   // SCREEN: Intro Terminal
   // --------------------------------------------------------------------------------
   if (screen === 'intro') {
     return (
-      <div className="agency-wrapper monitor-lines justify-center items-center p-6">
-        {!isConnected ? (
-          <div className="terminal-box text-center space-y-8 max-w-lg w-full scale-100 animate-in fade-in zoom-in-95 duration-700">
-            <ShieldAlert className="w-20 h-20 text-[#d4af37] mx-auto animate-flicker" />
-            <h1 className="text-2xl font-mono tracking-widest uppercase">GenLayer Agency</h1>
-            <p className="text-sm font-mono text-zinc-500">Restricted access protocol. Authenticate via secure link.</p>
-            <div className="flex justify-center"><ConnectButton /></div>
-          </div>
-        ) : !systemInitialized ? (
-          <div className="terminal-box text-center space-y-8 max-w-lg w-full scale-100 animate-in fade-in zoom-in-95 duration-1000">
-             <div className="w-16 h-16 border-2 border-[#d4af37] rounded-full mx-auto flex items-center justify-center animate-pulse">
-                <Cpu className="text-[#d4af37]" />
-             </div>
+      <div className="agency-wrapper monitor-lines justify-center items-center p-6 relative">
+        <div className="pt-20">
+          {!isConnected ? (
+            <div className="terminal-box text-center space-y-8 max-w-lg w-full scale-100 animate-in fade-in zoom-in-95 duration-700" style={{ animation: 'breathingGlow 4s ease-in-out infinite' }}>
+              <ShieldAlert className="w-20 h-20 text-[#d4af37] mx-auto animate-flicker" />
+              <h2 className="text-xl font-bold uppercase tracking-widest text-white mb-2">GENLAYER AGENCY</h2>
+              <p className="text-sm font-mono text-zinc-500">Authentication required to access secure terminal.</p>
+              <div onClick={() => playSFX('click')}>
+                <ConnectButton />
+              </div>
+            </div>
+          ) : !systemInitialized ? (
+            <div className="terminal-box text-center space-y-8 max-w-lg w-full scale-100 animate-in fade-in zoom-in-95 duration-1000" style={{ animation: 'breathingGlow 4s ease-in-out infinite' }}>
+               <div className="w-16 h-16 bg-green-500/20 border-2 border-green-500 rounded-full mx-auto flex items-center justify-center animate-pulse">
+                  <Cpu className="text-green-500" />
+               </div>
              <div>
-                <h2 className="text-xl font-bold uppercase tracking-widest text-white mb-2">System Ready</h2>
-                <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em]">Bio-signature established. Awaiting deployment.</p>
+                <h2 className="text-xl font-bold uppercase tracking-widest text-green-400 mb-2">Access Granted</h2>
+                <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em]">Bio-signature verified. Secure connection established.</p>
+                <p className="text-[10px] font-mono text-[#d4af37] mt-2">Wallet: {address?.slice(0,8)}...{address?.slice(-6)}</p>
              </div>
-             <button 
+             <button
                 onClick={() => {
+                  initializeAudioContext();
                   setSystemInitialized(true);
                   playSFX('click');
                 }}
-                className="w-full py-6 border-2 border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all font-bold uppercase tracking-[0.5em] shadow-[0_0_20px_rgba(212,175,55,0.1)]"
+                className="w-full py-6 border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-black transition-all font-bold uppercase tracking-[0.5em] shadow-[0_0_20px_rgba(34,197,94,0.2)]"
              >
-                Initialize Terminal
+                Enter Secure Portal
              </button>
           </div>
         ) : (
@@ -179,7 +242,7 @@ export default function Home() {
              <div className="terminal-box font-mono text-sm leading-loose whitespace-pre-wrap min-h-[400px]">
                 {introText}<span className="cursor"></span>
                 {introFinished && (
-                  <button 
+                  <button
                     onClick={() => { playSFX('click'); setScreen('selection'); }}
                     className="mt-12 block w-full py-5 border-2 border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all uppercase tracking-[0.4em] font-bold"
                   >
@@ -189,6 +252,21 @@ export default function Home() {
              </div>
           </div>
         )}
+
+        <footer className="fixed bottom-0 left-0 w-full z-[50] bg-black/80 p-4">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-6 text-xs font-mono">
+              <a href="https://x.com/GenLayer" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-[#d4af37] transition-colors">GenLayer Twitter</a>
+              <a href="https://www.genlayer.com" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-[#d4af37] transition-colors">GenLayer Website</a>
+              <a href="https://x.com/danzo1r" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-[#d4af37] transition-colors">Lead Investigator: @danzo1r</a>
+            </div>
+            <div className="text-xs font-mono">
+              <span className="text-zinc-500">Powered by: </span>
+              <span className="text-[#d4af37] font-bold">LCHHAB 9</span>
+            </div>
+          </div>
+        </footer>
+        </div>
       </div>
     );
   }
@@ -199,171 +277,124 @@ export default function Home() {
   if (screen === 'selection') {
     return (
       <div className="agency-wrapper monitor-lines p-8 md:p-16 overflow-y-auto">
-        <header className="fixed top-0 left-0 w-full z-[100] border-b border-[#d4af37]/20 bg-black/80 backdrop-blur-md p-4 flex justify-between items-center px-12">
-         <div className="text-[#d4af37] font-bold text-lg tracking-[0.4em] flex flex-col">
-            <span>GENLAYER: CASE #01</span>
-            <span className="text-[8px] tracking-[0.1em] opacity-50 font-mono">BUILD V.4 // SYNCED ACCESS</span>
-         </div>
-         <div className="flex items-center gap-6">
-           <p className="text-xs font-mono opacity-50 uppercase tracking-widest">Signed in: {address?.slice(0,6)}...{address?.slice(-4)}</p>
-           <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-3 border border-[#d4af37]/20 hover:border-[#d4af37] transition-all">
-              {soundEnabled ? <Volume2 /> : <VolumeX />}
-           </button>
-         </div>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
-           <div onClick={() => { playSFX('click'); setScreen('investigation'); }} className="group cursor-pointer">
-              <div className="aspect-square terminal-box flex items-center justify-center group-hover:border-[#d4af37] transition-all relative">
-                 <img src="/folder-icon.png" alt="Folder" className="w-32 h-32 grayscale brightness-50 group-hover:brightness-100 transition-all" />
-                 <div className="absolute top-4 left-4 px-2 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>
+        <div className="flex items-center justify-center min-h-[80vh] pt-20">
+          {debugMode && (
+            <div className="fixed top-24 right-4 z-[300] p-4 bg-black/90 border border-[#d4af37] text-green-400 font-mono text-xs space-y-2 max-w-xs">
+              <div className="flex justify-between items-center">
+                <span className="text-[#d4af37] font-bold">DEBUG MODE</span>
+                <button onClick={() => setDebugMode(false)} className="text-red-400 hover:text-red-300">✕</button>
+              </div>
+              <div>Wallet: {address?.slice(0,8)}...{address?.slice(-6)}</div>
+              <div>Contract: {GENLAYER_CONTRACT_ADDRESS.slice(0,10)}...</div>
+              <div>Has Badge (Context): {hasBadge ? '✅ YES' : '❌ NO'}</div>
+              <div>Case Solved: {caseSolved ? '✅ YES' : '❌ NO'}</div>
+              <div>Screen: {screen}</div>
+              <button 
+                onClick={() => refreshBadge()}
+                className="mt-2 w-full py-1 border border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37] hover:text-black"
+              >
+                Refresh Badge
+              </button>
+            </div>
+          )}
+          {notification && (
+            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[200] px-6 py-3 bg-red-900/90 border border-red-500 text-red-100 font-mono text-sm animate-in fade-in slide-in-from-top-4">
+              {notification}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
+           <div onClick={() => { playSFX('click'); router.push('/case-01'); }} className="group cursor-pointer">
+              <div className="aspect-square terminal-box flex items-center justify-center group-hover:border-[#d4af37] group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all relative overflow-hidden">
+                 <img src="/folder-icon.png" alt="Folder" className="w-64 h-64 object-contain grayscale brightness-50 group-hover:brightness-100 group-hover:grayscale-0 transition-all" />
+                 {case01Complete
+                   ? <div className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-black text-[10px] font-bold uppercase">✓ 100% COMPLETE</div>
+                   : <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>}
               </div>
               <h3 className="mt-4 text-lg font-bold group-hover:text-white">#01: The Architect</h3>
+              <button 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  console.log("Navigating to Case 001...");
+                  router.push('/case-01'); 
+                }}
+                className="mt-2 w-full py-2 border border-[#d4af37] text-[#d4af37] text-xs font-bold uppercase tracking-wider hover:bg-[#d4af37] hover:text-black transition-all"
+              >
+                ENTER
+              </button>
            </div>
 
-           <div className="opacity-40 cursor-not-allowed">
-              <div className="aspect-square terminal-box flex items-center justify-center"><Lock size={48} className="opacity-20" /></div>
-              <h3 className="mt-4 text-lg font-bold">Coming Soon</h3>
+           <div 
+             onClick={() => { playSFX('click'); router.push('/case-02'); }}
+             className="group cursor-pointer transition-all"
+           >
+              <div className="aspect-square terminal-box flex items-center justify-center group-hover:border-[#d4af37] group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all relative overflow-hidden">
+                 <img src="/case-02-folder.png" alt="Folder" className="w-64 h-64 object-contain grayscale brightness-50 group-hover:brightness-100 group-hover:grayscale-0 transition-all" />
+                 {case02Complete
+                   ? <div className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-black text-[10px] font-bold uppercase">✓ 100% COMPLETE</div>
+                   : <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>}
+              </div>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white">#02: THE LAST TRANSACTION</h3>
+              <button 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  console.log("Navigating to Case 002...");
+                  router.push('/case-02'); 
+                }}
+                className="mt-2 w-full py-2 border border-[#d4af37] text-[#d4af37] text-xs font-bold uppercase tracking-wider hover:bg-[#d4af37] hover:text-black transition-all"
+              >
+                ENTER
+              </button>
            </div>
+          </div>
+        </div>
+
+        <footer className="fixed bottom-0 left-0 w-full z-[50] bg-black/80 p-4">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-6 text-xs font-mono">
+              <a href="https://x.com/GenLayer" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-[#d4af37] transition-colors">GenLayer Twitter</a>
+              <a href="https://www.genlayer.com" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-[#d4af37] transition-colors">GenLayer Website</a>
+              <a href="https://x.com/danzo1r" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-[#d4af37] transition-colors">Lead Investigator: @danzo1r</a>
+            </div>
+            <div className="text-xs font-mono">
+              <span className="text-zinc-500">Powered by: </span>
+              <span className="text-[#d4af37] font-bold">LCHHAB 9</span>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------------------------------
+  // SCREEN: Reward
+  // --------------------------------------------------------------------------------
+  if (screen === 'reward') {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+        <div className="max-w-2xl w-full">
+          <NFTMinter onReturn={() => setScreen('selection')} />
         </div>
       </div>
     );
   }
 
   // --------------------------------------------------------------------------------
-  // SCREEN: Investigation
+  // SCREEN: Investigation (Removed - moved to /case-01)
   // --------------------------------------------------------------------------------
   return (
-    <div className="agency-wrapper monitor-lines p-4 md:p-8 overflow-y-auto">
-      <header className="max-w-7xl mx-auto w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12 pb-8 border-b border-[#d4af37]/20">
-        <div>
-          <button onClick={() => setScreen('selection')} className="text-[10px] uppercase font-mono hover:underline mb-2 block tracking-widest">← Return to Database</button>
-          <h1 className="text-3xl font-bold uppercase tracking-widest">Case #01: The Architect</h1>
-        </div>
-        <div className="flex items-center gap-6">
-           <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-full">
-              <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-pulse shadow-[0_0_8px_#d4af37]"></div>
-              <span className="text-[10px] font-mono uppercase tracking-widest">GenLayer Bradbury</span>
-           </div>
-           <button onClick={() => setSoundEnabled(!soundEnabled)} className="text-zinc-500 hover:text-white transition-all">{soundEnabled ? <Volume2 /> : <VolumeX />}</button>
-           <ConnectButton showBalance={false} />
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Left Column: Evidence & Envelopes */}
-        <div className="lg:col-span-2 space-y-12">
-            
-            {/* Agent Discovery Section */}
-            <section className="noir-panel p-6 border-l-4 border-[#d4af37]">
-               <h2 className="text-[10px] font-mono uppercase text-zinc-500 mb-6 flex items-center gap-2 tracking-[0.2em]">
-                 <Wallet size={14} /> Agent Identity Verified
-               </h2>
-               <div onClick={() => setSelectedEvidence({ src: "https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.png", title: "#ID-G01 // CONFIDENTIAL" })} className="polaroid w-48 mx-auto sm:mx-0">
-                  <img src="https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 01 Access_and_UI/field_agent_pass.png" alt="DATA RECOVERY IN PROGRESS [BUILD V.4]" className="object-cover h-32 w-full" />
-                  <div className="polaroid-caption">#ID-G01 // CONFIDENTIAL</div>
-               </div>
-            </section>
-
-            <section>
-              <h2 className="text-[10px] font-mono uppercase text-zinc-500 mb-6 flex items-center gap-2 tracking-[0.2em]">
-                 <Search size={14} /> Evidence Locker: File #01
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                <div onClick={() => setSelectedEvidence({ src: "https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime_scene.png", title: "SCENE // 23:44" })} className="polaroid -rotate-1">
-                   <img src="https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 02 Main_Evidence/crime_scene.png" alt="DATA RECOVERY IN PROGRESS [BUILD V.4]" className="object-cover h-32 w-full" />
-                   <div className="polaroid-caption">SCENE // 23:44</div>
-                </div>
-                <div onClick={() => setSelectedEvidence({ src: "https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 02 Main_Evidence/police_report.png", title: "INTEL // LOGS" })} className="polaroid rotate-2">
-                   <img src="https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 02 Main_Evidence/police_report.png" alt="DATA RECOVERY IN PROGRESS [BUILD V.4]" className="object-cover h-32 w-full" />
-                   <div className="polaroid-caption">INTEL // LOGS</div>
-                </div>
-                <div onClick={() => setSelectedEvidence({ src: "https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png", title: "WALLET // 0xAF" })} className="polaroid -rotate-2">
-                   <img src="https://genesis-hack-game.vercel.app/GenLayer_Game_Assets/Folder 02 Main_Evidence/wallet_logs.png" alt="DATA RECOVERY IN PROGRESS [BUILD V.4]" className="object-cover h-32 w-full" />
-                   <div className="polaroid-caption">WALLET // 0xAF</div>
-                </div>
-              </div>
-            </section>
-
-            {/* Locked Envelopes Section */}
-            <section className="space-y-6">
-              <h2 className="text-[10px] font-mono uppercase text-zinc-500 flex items-center gap-2 tracking-[0.2em]">
-                 <Lock size={14} /> Encrypted Patterns
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                 {/* Env #1 */}
-                 <div className="terminal-box p-6 flex flex-col items-center min-h-[160px]">
-                    {!unlockedEnvelopes[0] ? (
-                      <>
-                        <input type="text" value={inputValue} onChange={(e)=>setInputValue(e.target.value)} placeholder="DECRYPT KEY" className="w-full bg-black/50 border border-[#d4af37]/30 p-3 text-[10px] font-mono text-[#d4af37] mb-3 focus:outline-none focus:border-[#d4af37]" />
-                        <button onClick={handleDecrypt} disabled={isDecrypting} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all disabled:opacity-50 mb-4">Decrypt</button>
-                        {decryptedMessage && (
-                          <div className={`text-[9px] font-mono uppercase text-center leading-relaxed ${decryptedMessage.includes('ERROR') ? 'text-red-500 animate-pulse' : 'text-[#d4af37]'}`}>
-                            {decryptedMessage}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png", title: "ENV #01 // RECOVERED" }); }} className="cursor-pointer group w-full">
-                        <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env1_clue.png" alt="" className="w-full h-20 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-4" />
-                        <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">ENV #01 // RECOVERED</p>
-                      </div>
-                    )}
-                  </div>
-                 
-                 {/* Env #2 */}
-                 <div className="terminal-box p-6 flex flex-col items-center">
-                    {unlockedEnvelopes[0] ? (
-                      <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png", title: "ENV #02 // RECOVERED" }); }} className="cursor-pointer group">
-                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env2_clue.png" alt="" className="w-full h-16 object-cover grayscale brightness-50 group-hover:brightness-100 transition-all mb-2" />
-                         <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">ENV #02 // RECOVERED</p>
-                      </div>
-                    ) : (
-                       <Lock className="text-zinc-900/40 opacity-20" size={32} />
-                    )}
-                 </div>
-
-                 {/* Env #3 Final */}
-                 <div className="terminal-box p-6 flex flex-col items-center justify-center border-dashed opacity-80">
-                    {unlockedEnvelopes[0] ? (
-                       <div onClick={() => { playSFX('typewriter'); setSelectedEvidence({ src: "/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png", title: "FINAL VERDICT" }); }} className="cursor-pointer group">
-                         <img src="/GenLayer_Game_Assets/Folder 03 Locked_Envelopes/env3_final.png" alt="" className="w-full h-16 object-cover grayscale group-hover:grayscale-0 transition-all mb-2 border border-[#d4af37]/40" />
-                         <p className="text-[10px] text-[#d4af37] font-mono text-center tracking-tighter">FINAL VERDICT</p>
-                       </div>
-                    ) : (
-                      <Trophy className="opacity-10 text-[#d4af37]" size={32} />
-                    )}
-                 </div>
-              </div>
-            </section>
-        </div>
-
-        <aside className="space-y-8">
-            <section className="terminal-box p-8 space-y-6">
-                <h3 className="text-sm font-bold uppercase tracking-[0.3em] flex items-center gap-2 text-white">Verification Portal</h3>
-                {caseSolved ? (
-                  <div className="text-center py-6 space-y-4"><Trophy className="w-12 h-12 mx-auto text-[#d4af37]" /><p className="text-xs font-bold uppercase">Master Detective Verified</p></div>
-                ) : (
-                  <>
-                    <input type="text" value={solutionHash} onChange={(e)=>setSolutionHash(e.target.value)} className="w-full bg-black/50 border border-[#d4af37]/30 p-4 text-xs font-mono text-[#d4af37]/60 placeholder:text-[#d4af37]/40 focus:text-[#d4af37] transition-all" placeholder="IDENT_UNKNOWN" />
-                    <button onClick={handleVerifySolution} disabled={isMinting || isConfirming} className="w-full py-5 bg-[#d4af37] text-black font-bold uppercase tracking-[0.3em] hover:bg-white transition-all disabled:opacity-50">SUBMIT VERDICT</button>
-                  </>
-                )}
-            </section>
-        </aside>
+    <div className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="text-center space-y-6">
+        <h1 className="text-2xl font-bold text-white tracking-widest">Route Changed</h1>
+        <p className="text-zinc-400 font-mono text-sm">Case #01 investigation moved to /case-01</p>
+        <button 
+          onClick={() => router.push('/case-01')}
+          className="px-8 py-3 border border-[#d4af37] text-[#d4af37] font-bold uppercase tracking-[0.2em] hover:bg-[#d4af37] hover:text-black transition-all"
+        >
+          Go to Case #01
+        </button>
       </div>
-
-      {selectedEvidence && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl animate-in fade-in duration-500" onClick={() => setSelectedEvidence(null)}>
-           <div className="relative max-w-4xl w-full" onClick={(e)=>e.stopPropagation()}>
-              <div className="bg-zinc-200 p-4 pb-20 shadow-2xl relative">
-                <img src={selectedEvidence.src} alt="Evidence" className="max-h-[70vh] w-auto grayscale brightness-75 hover:grayscale-0 hover:brightness-100 transition-all duration-1000" />
-                <p className="absolute bottom-6 left-0 right-0 text-center font-mono text-[10px] text-zinc-900 opacity-50 uppercase">{selectedEvidence.title}</p>
-              </div>
-              <button onClick={() => setSelectedEvidence(null)} className="mt-8 block w-full text-center text-[#d4af37] font-mono text-xs uppercase hover:underline">/ Close Intel /</button>
-           </div>
-        </div>
-      )}
     </div>
   );
 }
+
+export default HomeContent;

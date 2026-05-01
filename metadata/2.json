@@ -1,0 +1,42 @@
+{
+  "name": "Case 2 Detective Badge",
+  "description": "Master Detective Badge - Case 2 Completion. Awarded to elite detectives who successfully solved the complex second investigation and minted their certified badge.",
+  "image": "https://your-metadata-domain.com/images/case2-badge.png",
+  "external_url": "https://your-dapp-domain.com/case-002",
+  "attributes": [
+    {
+      "trait_type": "Case Number",
+      "value": "002"
+    },
+    {
+      "trait_type": "Rank",
+      "value": "Master Detective"
+    },
+    {
+      "trait_type": "Status",
+      "value": "Certified"
+    },
+    {
+      "trait_type": "Clearance Level",
+      "value": "Level 2"
+    },
+    {
+      "trait_type": "Badge Type",
+      "value": "Elite Investigator"
+    },
+    {
+      "trait_type": "Specialization",
+      "value": "Advanced Forensics"
+    }
+  ],
+  "properties": {
+    "category": "Badge",
+    "creator": "Genesis Hack Detective Agency",
+    "files": [
+      {
+        "uri": "https://your-metadata-domain.com/images/case2-badge.png",
+        "type": "image/png"
+      }
+    ]
+  }
+}
