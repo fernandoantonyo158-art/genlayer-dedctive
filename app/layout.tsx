@@ -14,8 +14,12 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GenLayer - Case #01 Genesis Hack",
+  title: "GenLayer Detective | Official",
   description: "Web3 Investigation Dashboard",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
