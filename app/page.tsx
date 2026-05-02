@@ -329,7 +329,8 @@ function HomeContent() {
                    ? <div className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-black text-[10px] font-bold uppercase">✓ 100% COMPLETE</div>
                    : <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>}
               </div>
-              <h3 className="mt-4 text-lg font-bold group-hover:text-white">#01: The Architect</h3>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white text-right" dir="rtl">الـقـضـيـة الـغـامـضـة</h3>
+              <p className="text-xs text-zinc-500 font-mono">The Mysterious Case</p>
               <button 
                 onClick={(e) => { 
                   e.stopPropagation(); 
@@ -352,7 +353,8 @@ function HomeContent() {
                    ? <div className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-black text-[10px] font-bold uppercase">✓ 100% COMPLETE</div>
                    : <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>}
               </div>
-              <h3 className="mt-4 text-lg font-bold group-hover:text-white">#02: THE LAST TRANSACTION</h3>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white text-right" dir="rtl">لـيدجـر الـفـيـلا الـمـشـؤومـة</h3>
+              <p className="text-xs text-zinc-500 font-mono">The Ill-Fated Villa Ledger</p>
               <button 
                 onClick={(e) => { 
                   e.stopPropagation(); 
