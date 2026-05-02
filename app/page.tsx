@@ -327,7 +327,7 @@ function HomeContent() {
                  <img src="/folder-icon.png" alt="Folder" className="w-64 h-64 object-contain grayscale brightness-50 group-hover:brightness-100 group-hover:grayscale-0 transition-all" />
                  <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">ACTIVE CASE</div>
               </div>
-              <h3 className="mt-4 text-lg font-bold group-hover:text-white uppercase tracking-widest">THE MYSTERIOUS CASE</h3>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white uppercase tracking-widest">CASE 001: THE MYSTERIOUS CASE</h3>
               <button 
                 onClick={(e) => { 
                   e.stopPropagation(); 
@@ -348,7 +348,7 @@ function HomeContent() {
                  <img src="/case-02-folder.png" alt="Folder" className="w-64 h-64 object-contain grayscale brightness-50 group-hover:brightness-100 group-hover:grayscale-0 transition-all" />
                  <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">ACTIVE CASE</div>
               </div>
-              <h3 className="mt-4 text-lg font-bold group-hover:text-white uppercase tracking-widest">THE CURSED VILLA LEDGER</h3>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white uppercase tracking-widest">CASE 002: THE CURSED VILLA LEDGER</h3>
               <button 
                 onClick={(e) => { 
                   e.stopPropagation(); 
