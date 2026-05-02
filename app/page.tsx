@@ -325,12 +325,9 @@ function HomeContent() {
            <div onClick={() => { playSFX('click'); router.push('/case-01'); }} className="group cursor-pointer">
               <div className="aspect-square terminal-box flex items-center justify-center group-hover:border-[#d4af37] group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all relative overflow-hidden">
                  <img src="/folder-icon.png" alt="Folder" className="w-64 h-64 object-contain grayscale brightness-50 group-hover:brightness-100 group-hover:grayscale-0 transition-all" />
-                 {case01Complete
-                   ? <div className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-black text-[10px] font-bold uppercase">✓ 100% COMPLETE</div>
-                   : <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>}
+                 <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">ACTIVE CASE</div>
               </div>
-              <h3 className="mt-4 text-lg font-bold group-hover:text-white text-right" dir="rtl">الـقـضـيـة الـغـامـضـة</h3>
-              <p className="text-xs text-zinc-500 font-mono">The Mysterious Case</p>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white uppercase tracking-widest">THE MYSTERIOUS CASE</h3>
               <button 
                 onClick={(e) => { 
                   e.stopPropagation(); 
@@ -349,12 +346,9 @@ function HomeContent() {
            >
               <div className="aspect-square terminal-box flex items-center justify-center group-hover:border-[#d4af37] group-hover:shadow-[0_0_30px_rgba(212,175,55,0.3)] transition-all relative overflow-hidden">
                  <img src="/case-02-folder.png" alt="Folder" className="w-64 h-64 object-contain grayscale brightness-50 group-hover:brightness-100 group-hover:grayscale-0 transition-all" />
-                 {case02Complete
-                   ? <div className="absolute top-2 right-2 px-3 py-1 bg-green-500 text-black text-[10px] font-bold uppercase">✓ 100% COMPLETE</div>
-                   : <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">Active Case</div>}
+                 <div className="absolute top-2 right-2 px-3 py-1 bg-[#d4af37] text-black text-[10px] font-bold uppercase">ACTIVE CASE</div>
               </div>
-              <h3 className="mt-4 text-lg font-bold group-hover:text-white text-right" dir="rtl">لـيدجـر الـفـيـلا الـمـشـؤومـة</h3>
-              <p className="text-xs text-zinc-500 font-mono">The Ill-Fated Villa Ledger</p>
+              <h3 className="mt-4 text-lg font-bold group-hover:text-white uppercase tracking-widest">THE CURSED VILLA LEDGER</h3>
               <button 
                 onClick={(e) => { 
                   e.stopPropagation(); 
