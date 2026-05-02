@@ -150,18 +150,24 @@ export default function Case01() {
   }, [hash, isConfirming, isConfirmed, transactionPurpose]);
 
   const handleDecrypt = () => {
+    console.log('handleDecrypt called, input:', inputValue);
     if (!isConnected) { setTransactionError("Connect wallet to decrypt evidence."); return; }
     if (!inputValue || !address) return;
     
     const trimmedValue = inputValue.trim();
     const validAnswers = ['500 eth', '500 ETH', '500 Eth'];
     
+    console.log('Validation check - trimmed:', trimmedValue, 'valid:', validAnswers.includes(trimmedValue));
+    
+    // CRITICAL SAFETY CHECK: Never proceed with transaction if answer is wrong
     if (!validAnswers.includes(trimmedValue)) {
+      console.log('INVALID ANSWER - BLOCKING TRANSACTION');
       setTransactionError("Invalid Decryption Key. No transaction initiated.");
       playSFX('error');
       return;
     }
     
+    console.log('ANSWER VALID - PROCEEDING WITH TRANSACTION');
     setDecryptedMessage("");
     setTransactionError(null);
     playSFX('click');
@@ -189,18 +195,24 @@ export default function Case01() {
   };
 
   const handleVerifySolution = () => {
+    console.log('handleVerifySolution called, input:', solutionHash);
     if (!isConnected) { setTransactionError("Connect wallet to submit verdict."); return; }
     if (!solutionHash || !address) return;
     
     const trimmedValue = solutionHash.trim();
     const validAnswers = ['shadowadmin', 'ShadowAdmin', 'SHADOWADMIN'];
     
+    console.log('Validation check - trimmed:', trimmedValue, 'valid:', validAnswers.includes(trimmedValue));
+    
+    // CRITICAL SAFETY CHECK: Never proceed with transaction if answer is wrong
     if (!validAnswers.includes(trimmedValue)) {
+      console.log('INVALID ANSWER - BLOCKING TRANSACTION');
       setTransactionError("Invalid Decryption Key. No transaction initiated.");
       playSFX('error');
       return;
     }
     
+    console.log('ANSWER VALID - PROCEEDING WITH TRANSACTION');
     setTransactionError(null);
     setIsPortalLoading(true);
     setTransactionPurpose('verify');
