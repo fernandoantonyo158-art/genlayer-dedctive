@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico?v=2" />
+        <link rel="icon" type="image/png" href="/logo.png?v=2" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
       </head>
       <body className={`${inter.variable} ${orbitron.variable} ${spaceMono.variable} font-sans text-gray-300 min-h-screen antialiased`} style={{ background: 'url("/background.jpg") no-repeat center center fixed', backgroundSize: 'cover' }} suppressHydrationWarning>
