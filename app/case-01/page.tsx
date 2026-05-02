@@ -157,7 +157,7 @@ export default function Case01() {
     const validAnswers = ['500 eth', '500 ETH', '500 Eth'];
     
     if (!validAnswers.includes(trimmedValue)) {
-      setTransactionError("Evidence not recognized. Access Denied.");
+      setTransactionError("Invalid Decryption Key. No transaction initiated.");
       playSFX('error');
       return;
     }
@@ -177,6 +177,17 @@ export default function Case01() {
     });
   };
 
+  // Validation helpers for button disable logic
+  const isValidAmount = () => {
+    const trimmed = inputValue.trim();
+    return ['500 eth', '500 ETH', '500 Eth'].includes(trimmed);
+  };
+
+  const isValidAdmin = () => {
+    const trimmed = solutionHash.trim();
+    return ['shadowadmin', 'ShadowAdmin', 'SHADOWADMIN'].includes(trimmed);
+  };
+
   const handleVerifySolution = () => {
     if (!isConnected) { setTransactionError("Connect wallet to submit verdict."); return; }
     if (!solutionHash || !address) return;
@@ -185,7 +196,7 @@ export default function Case01() {
     const validAnswers = ['shadowadmin', 'ShadowAdmin', 'SHADOWADMIN'];
     
     if (!validAnswers.includes(trimmedValue)) {
-      setTransactionError("Evidence not recognized. Access Denied.");
+      setTransactionError("Invalid Decryption Key. No transaction initiated.");
       playSFX('error');
       return;
     }
@@ -280,7 +291,7 @@ export default function Case01() {
                         {transactionError && (
                           <p className="text-[9px] font-mono text-red-500 animate-pulse text-center mb-2">{transactionError}</p>
                         )}
-                        <button onClick={handleDecrypt} disabled={isDecrypting || isPatternLoading} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                        <button onClick={handleDecrypt} disabled={isDecrypting || isPatternLoading || !isValidAmount()} className="w-full py-2 border border-[#d4af37] hover:bg-[#d4af37] hover:text-black uppercase text-[10px] font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                           {isPatternLoading ? (
                             <>
                               <div className="w-3 h-3 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
@@ -353,7 +364,7 @@ export default function Case01() {
                     )}
                     <button 
                       onClick={handleVerifySolution} 
-                      disabled={isPortalLoading || !isPatternDecrypted} 
+                      disabled={isPortalLoading || !isPatternDecrypted || !isValidAdmin()} 
                       className="w-full py-4 bg-[#d4af37] text-black font-bold uppercase tracking-[0.3em] hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isPortalLoading ? (
