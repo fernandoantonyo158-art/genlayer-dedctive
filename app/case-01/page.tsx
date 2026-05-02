@@ -152,6 +152,16 @@ export default function Case01() {
   const handleDecrypt = () => {
     if (!isConnected) { setTransactionError("Connect wallet to decrypt evidence."); return; }
     if (!inputValue || !address) return;
+    
+    const trimmedValue = inputValue.trim();
+    const validAnswers = ['500 eth', '500 ETH', '500 Eth'];
+    
+    if (!validAnswers.includes(trimmedValue)) {
+      setTransactionError("Evidence not recognized. Access Denied.");
+      playSFX('error');
+      return;
+    }
+    
     setDecryptedMessage("");
     setTransactionError(null);
     playSFX('click');
@@ -162,7 +172,7 @@ export default function Case01() {
       address: GENLAYER_CONTRACT_ADDRESS as `0x${string}`,
       abi: CONTRACT_ABI,
       functionName: 'decrypt_case',
-      args: [inputValue],
+      args: [trimmedValue],
       value: parseEther('0.2'),
     });
   };
@@ -171,20 +181,27 @@ export default function Case01() {
     if (!isConnected) { setTransactionError("Connect wallet to submit verdict."); return; }
     if (!solutionHash || !address) return;
     
+    const trimmedValue = solutionHash.trim();
+    const validAnswers = ['shadowadmin', 'ShadowAdmin', 'SHADOWADMIN'];
+    
+    if (!validAnswers.includes(trimmedValue)) {
+      setTransactionError("Evidence not recognized. Access Denied.");
+      playSFX('error');
+      return;
+    }
+    
     setTransactionError(null);
     setIsPortalLoading(true);
     setTransactionPurpose('verify');
 
-    // shadowadmin answer → 0.2 GEN gate; all others → 0.3 GEN
-    const txValue = solutionHash.toLowerCase() === 'shadowadmin'
-      ? parseEther('0.2')
-      : parseEther('0.3');
+    // shadowadmin answer → 0.2 GEN gate
+    const txValue = parseEther('0.2');
     
     writeContract({
       address: GENLAYER_CONTRACT_ADDRESS as `0x${string}`,
       abi: CONTRACT_ABI,
       functionName: 'solve_case',
-      args: [solutionHash],
+      args: [trimmedValue],
       value: txValue,
     });
   };
